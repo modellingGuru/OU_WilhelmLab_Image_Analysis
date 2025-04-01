@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 from skimage.morphology import ball, disk
+from skimage.transform import resize
 from config import GAUSSIAN_SIGMA
 
 def calculate_kernel_size(sigma):
