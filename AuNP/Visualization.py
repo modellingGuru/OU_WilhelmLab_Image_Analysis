@@ -4,8 +4,28 @@ from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import cm
 from scipy.ndimage import gaussian_filter
 
-# Assuming the 'blobs' array contains [x, y, z] coordinates of detected nanoparticles
-# and the intensity values from the 3D image
+
+
+# Generate Test Data
+def generate_test_data(image_shape=(100, 100, 100), num_blobs=500, intensity_range=(100, 255)):
+    """
+    Generates a synthetic 3D image with random blobs for testing visualization.
+    """
+    image = np.zeros(image_shape, dtype=np.float32)
+    blobs = []
+
+    for _ in range(num_blobs):
+        x = np.random.randint(0, image_shape[0])
+        y = np.random.randint(0, image_shape[1])
+        z = np.random.randint(0, image_shape[2])
+        intensity = np.random.uniform(*intensity_range)
+
+        image[x, y, z] = intensity
+        blobs.append([x, y, z])
+
+    image = gaussian_filter(image, sigma=1)
+    return image, np.array(blobs)
+
 
 def viz_np(image, blobs, color_by_intensity=True):
     """
@@ -84,37 +104,75 @@ def generate_mask(image, blobs, mask_size=3):
     return mask
 
 
-def apply_mask(image, blobs, mask_size=3):
+def apply_mask(image, blobs, mask_size=3, colormap='viridis'):
     """
-    Applies the nanoparticle mask to the 3D image and visualizes it.
-
-    Parameters:
-    -----------
-    image - np.ndarray
-        The 3D image data.
-    blobs - np.ndarray
-        Coordinates of the detected nanoparticles.
-    mask_size : int
-        Size of the mask around each detected nanoparticle.
+    Applies the nanoparticle mask to the 3D image using generate_mask,
+    and visualizes it in 3D using color intensity mapping from the image.
     """
-    # Generate a mask based on the nanoparticles' coordinates
-    nanoparticle_mask = generate_mask(image, blobs, mask_size)
+    mask = generate_mask(image, blobs, mask_size=mask_size)
 
-    # Visualize the mask in 3D
-    fig = plt.figure(figsize=(10, 8))
+    fig = plt.figure(figsize=(12, 9))
     ax = fig.add_subplot(111, projection='3d')
 
-    # Coordinates of the mask's non-zero elements
-    mask_coords = np.array(np.where(nanoparticle_mask))
+    # Get intensities at blob centers
+    intensities = np.array([image[int(x), int(y), int(z)] for x, y, z in blobs])
+    norm = plt.Normalize(vmin=np.min(intensities), vmax=np.max(intensities))
+    cmap = plt.cm.get_cmap(colormap)
+    blob_colors = cmap(norm(intensities))
 
-    # Plotting the mask points in 3D
-    ax.scatter(mask_coords[0], mask_coords[1], mask_coords[2], c='b', marker='o', alpha=0.1)
+    for i, blob in enumerate(blobs):
+        color = blob_colors[i]
+        x, y, z = [int(round(coord)) for coord in blob]
+
+        x_range = np.arange(max(0, x - mask_size), min(image.shape[0], x + mask_size + 1))
+        y_range = np.arange(max(0, y - mask_size), min(image.shape[1], y + mask_size + 1))
+        z_range = np.arange(max(0, z - mask_size), min(image.shape[2], z + mask_size + 1))
+
+        coords = []
+
+        for xi in x_range:
+            for yi in y_range:
+                for zi in z_range:
+                    if mask[xi, yi, zi] and np.sqrt((xi - x)**2 + (yi - y)**2 + (zi - z)**2) <= mask_size:
+                        coords.append([xi, yi, zi])
+
+        coords = np.array(coords)
+        if coords.size > 0:
+            ax.scatter(coords[:, 0], coords[:, 1], coords[:, 2],
+                       color=color, s=8, alpha=0.6)
 
     ax.set_xlabel('X')
     ax.set_ylabel('Y')
     ax.set_zlabel('Z (Slice Index)')
-    ax.set_title('3D Mask Visualization of Nanoparticles')
+    ax.set_title('3D Mask Visualization Colored by Intensity')
+
+    # Add colorbar
+    sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
+    sm.set_array([])
+    cbar = fig.colorbar(sm, ax=ax)
+    cbar.set_label('Intensity')
 
     plt.show()
 
+# Save visual 
+def save_data(image, blobs, image_path="synthetic_image.npy", csv_path="blobs.csv"):
+    np.save(image_path, image)
+    np.savetxt(csv_path, blobs, delimiter=",", header="x,y,z", comments='', fmt='%d')
+    print(f"Saved image to {image_path}")
+    print(f"Saved blob coordinates to {csv_path}")
+
+
+
+"""
+#Loads blob coordinates from a CSV file.
+def load_coordinates(csv_path, reorder_axes=True):
+    coords = np.loadtxt(csv_path, delimiter=",", skiprows=1)
+    if reorder_axes:
+        coords = coords[:, [2, 1, 0]]  # [z, y, x] -> [x, y, z]
+    return coords
+
+# Load the image and CSV
+#image = np.load("my_3d_image.npy")        
+#blobs = load_coordinates("nanoparticles.csv")
+"""
 
