@@ -7,7 +7,7 @@ from scipy.ndimage import gaussian_filter
 # Assuming the 'blobs' array contains [x, y, z] coordinates of detected nanoparticles
 # and the intensity values from the 3D image
 
-def visualize_nanoparticles_3d(image, blobs, color_by_intensity=True):
+def viz_np(image, blobs, color_by_intensity=True):
     """
     Visualizes nanoparticles in 3D, displaying them with colors based on their intensity values.
     """
@@ -48,27 +48,27 @@ def visualize_nanoparticles_3d(image, blobs, color_by_intensity=True):
     plt.show()
 
 
-def generate_nanoparticle_mask(image, blobs, mask_size=3):
+def generate_mask(image, blobs, mask_size=3):
     """
     Generates a 3D binary mask based on the positions of nanoparticles.
 
     Parameters:
     -----------
-    image : np.ndarray
+    image: np.ndarray
         The 3D image where nanoparticles are detected.
-    blobs : np.ndarray
+    blobs: np.ndarray
         The coordinates of the detected nanoparticles.
     mask_size : int
         The size of the mask to be used for each nanoparticle (assumed spherical).
 
     Returns:
     --------
-    np.ndarray : Mask image with nanoparticles marked.
+    np.ndarray: Mask image with nanoparticles marked.
     """
     mask = np.zeros_like(image, dtype=bool)
     
     for blob in blobs:
-        x, y, z = blob
+        x, y, z = [int(round(coord)) for coord in blob]  
         # Create a spherical mask around each nanoparticle
         x_range = np.arange(max(0, x - mask_size), min(image.shape[0], x + mask_size + 1))
         y_range = np.arange(max(0, y - mask_size), min(image.shape[1], y + mask_size + 1))
@@ -77,32 +77,28 @@ def generate_nanoparticle_mask(image, blobs, mask_size=3):
         for xi in x_range:
             for yi in y_range:
                 for zi in z_range:
-                    # Check distance from center to create spherical mask
+                    # Only mask voxels within a spherical radius
                     if np.sqrt((xi - x)**2 + (yi - y)**2 + (zi - z)**2) <= mask_size:
                         mask[xi, yi, zi] = True
 
     return mask
 
 
-def apply_mask_and_visualize(image, blobs, mask_size=3):
+def apply_mask(image, blobs, mask_size=3):
     """
     Applies the nanoparticle mask to the 3D image and visualizes it.
 
     Parameters:
     -----------
-    image : np.ndarray
+    image - np.ndarray
         The 3D image data.
-    blobs : np.ndarray
+    blobs - np.ndarray
         Coordinates of the detected nanoparticles.
     mask_size : int
         Size of the mask around each detected nanoparticle.
-
-    Returns:
-    --------
-    None
     """
     # Generate a mask based on the nanoparticles' coordinates
-    nanoparticle_mask = generate_nanoparticle_mask(image, blobs, mask_size)
+    nanoparticle_mask = generate_mask(image, blobs, mask_size)
 
     # Visualize the mask in 3D
     fig = plt.figure(figsize=(10, 8))
@@ -122,16 +118,3 @@ def apply_mask_and_visualize(image, blobs, mask_size=3):
     plt.show()
 
 
-# --- Example Usage ---
-if __name__ == "__main__":
-    # Example of a 3D image with random intensity values (replace with your actual 3D image)
-    image = np.random.random((50, 50, 50))  # Example 3D image
-
-    # Example of blobs (replace with actual nanoparticle coordinates)
-    blobs = np.array([[10, 10, 10], [20, 20, 20], [30, 30, 30], [40, 40, 40]])
-
-    # Visualize nanoparticles in 3D based on intensity
-    visualize_nanoparticles_3d(image, blobs, color_by_intensity=True)
-
-    # Generate a mask and visualize the nanoparticles as a colored structure
-    apply_mask_and_visualize(image, blobs, mask_size=3)
