@@ -8,7 +8,7 @@ def remove_close_blobs(blobs, image, min_dist):
     Removes blobs that are too close to each other, keeping the highest intensity one.
 
     Args:
-        blobs (np.ndarray): Array of blob coordinates and optional metadata.
+        blobs (np.ndarray): Array of blob coordinates and optional metadata.expa
         image (np.ndarray): 3D image from which blobs are extracted.
         min_dist (float): Minimum allowed distance between blobs.
 
@@ -119,7 +119,15 @@ def segment_nanoparticles(image, min_dist=2.0, sigma_threshold=3):
     blobs = eliminate_insignificant_blobs(image, blobs, sigma_threshold)
 
     return blobs
-
+    
+# Save Coordinates to CSV file 
 def save_coordinates_to_csv(blobs, output_path="nanoparticles.csv"):
-    np.savetxt(output_path, blobs, fmt='%d', delimiter=",", header="z,y,x", comments="")
+    # Reorder from z, y, x to x, y, z for consistency with visual pipeline
+    if blobs.shape[1] >= 3:
+        reordered = blobs[:, [2, 1, 0]]
+    else:
+        reordered = blobs
+    np.savetxt(output_path, reordered, fmt='%d', delimiter=",", header="x,y,z", comments="")
+    print(f"Saved {len(reordered)} blob coordinates to {output_path}")
+
 
