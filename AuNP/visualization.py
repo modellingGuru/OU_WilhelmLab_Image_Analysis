@@ -166,7 +166,7 @@ def apply_mask(image, blobs, mask_size=3, colormap='viridis'):
     plt.show()
 
 # Save visual 
-def save_data(image, blobs, image_path="synthetic_image.npy", csv_path="blobs.csv"):
+def save_data(image, blobs, image_path="synthetic_image.npy", csv_path="nanoparticles.csv"):
     np.save(image_path, image)
     np.savetxt(csv_path, blobs, delimiter=",", header="x,y,z", comments='', fmt='%d')
     print(f"Saved image to {image_path}")
