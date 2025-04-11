@@ -14,13 +14,14 @@ def load_coordinates(csv_path, reorder_axes=False):
     """
     coords = np.loadtxt(csv_path, delimiter=",", skiprows=1)
     if reorder_axes:
-        coords = coords[:, [2, 1, 0]]  # If needed
+        coords = coords[:, [2, 1, 0]]  
     return coords
-
+    
+"""
 # Generate Test Data
 def generate_test_data(image_shape=(100, 100, 100), num_blobs=500, intensity_range=(100, 255)):
     """
-    Generates a synthetic 3D image with random blobs for testing visualization.
+    #Generates a synthetic 3D image with random blobs for testing visualization.
     """
     image = np.zeros(image_shape, dtype=np.float32)
     blobs = []
@@ -36,6 +37,7 @@ def generate_test_data(image_shape=(100, 100, 100), num_blobs=500, intensity_ran
 
     image = gaussian_filter(image, sigma=1)
     return image, np.array(blobs)
+    """
 
 
 def viz_np(image, blobs, color_by_intensity=True):
