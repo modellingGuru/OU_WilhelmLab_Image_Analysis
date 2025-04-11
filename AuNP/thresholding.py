@@ -1,11 +1,10 @@
 import numpy as np
 import dask.array as da
-import logging
 from skimage.filters import threshold_otsu, threshold_multiotsu
 from skimage.morphology import dilation, erosion, ball
 from scipy import ndimage
 
-def adaptive_downsampling(image, max_size=512):
+def downsampling(image, max_size=512):
     """Automatically determines an optimal downsampling factor for large images."""
     factor = max(1, image.shape[0] // max_size, image.shape[1] // max_size, image.shape[2] // max_size)
     return factor
