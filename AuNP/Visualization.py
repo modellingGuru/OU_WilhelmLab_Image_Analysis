@@ -5,6 +5,17 @@ from matplotlib import cm
 from scipy.ndimage import gaussian_filter
 
 
+# Load coordinates
+def load_coordinates(csv_path, reorder_axes=False):
+    """
+    Loads blob coordinates from ("nanoparticles.csv") file.
+    
+    Redefine pathway to .csv file 
+    """
+    coords = np.loadtxt(csv_path, delimiter=",", skiprows=1)
+    if reorder_axes:
+        coords = coords[:, [2, 1, 0]]  # If needed
+    return coords
 
 # Generate Test Data
 def generate_test_data(image_shape=(100, 100, 100), num_blobs=500, intensity_range=(100, 255)):
@@ -160,19 +171,3 @@ def save_data(image, blobs, image_path="synthetic_image.npy", csv_path="blobs.cs
     np.savetxt(csv_path, blobs, delimiter=",", header="x,y,z", comments='', fmt='%d')
     print(f"Saved image to {image_path}")
     print(f"Saved blob coordinates to {csv_path}")
-
-
-
-"""
-#Loads blob coordinates from a CSV file.
-def load_coordinates(csv_path, reorder_axes=True):
-    coords = np.loadtxt(csv_path, delimiter=",", skiprows=1)
-    if reorder_axes:
-        coords = coords[:, [2, 1, 0]]  # [z, y, x] -> [x, y, z]
-    return coords
-
-# Load the image and CSV
-#image = np.load("my_3d_image.npy")        
-#blobs = load_coordinates("nanoparticles.csv")
-"""
-
