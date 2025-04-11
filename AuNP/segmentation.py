@@ -119,3 +119,7 @@ def segment_nanoparticles(image, min_dist=2.0, sigma_threshold=3):
     blobs = eliminate_insignificant_blobs(image, blobs, sigma_threshold)
 
     return blobs
+
+def save_coordinates_to_csv(blobs, output_path="nanoparticles.csv"):
+    np.savetxt(output_path, blobs, fmt='%d', delimiter=",", header="z,y,x", comments="")
+
