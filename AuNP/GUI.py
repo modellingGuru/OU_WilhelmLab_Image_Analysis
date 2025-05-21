@@ -8,8 +8,9 @@ import webbrowser
 
 from metrics import calculate_density, compute_nnd
 from visualization import plot_nnd_histogram, plot_3d_scatter
-from segmentation import find_particles
-
+from segmentation import segment_particles
+from thresholding import apply_threshold
+from preprocessing import preprocess_image
 
 class NanoCount:
     def __init__(self, root):
