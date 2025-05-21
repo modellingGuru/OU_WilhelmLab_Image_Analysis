@@ -95,30 +95,22 @@ def apply_otsu_threshold(image):
     return image_blurred > threshold
 
 
-def segment_nanoparticles(image, min_dist=2.0, sigma_threshold=3):
-    """
-    Complete nanoparticle segmentation pipeline.
-
-    Args:
-        image (np.ndarray): 3D image data.
-        min_dist (float): Minimum separation distance for blobs.
-        sigma_threshold (float): Intensity threshold multiplier.
-
-    Returns:
-        np.ndarray: Segmented and filtered nanoparticle coordinates.
-    """
+def segment_nanoparticles(image, min_dist=2.0, sigma_threshold=2):
     binary_image = apply_otsu_threshold(image)
     labeled, num_features = label(binary_image)
 
-    # Extract blob coordinates
-    blobs = np.array(np.argwhere(labeled > 0))
+    blobs = np.argwhere(labeled > 0)
 
-    # Sort, filter close blobs, and eliminate insignificant ones
+    # If 2D, pad with zero z-coordinate
+    if image.ndim == 2:
+        blobs = np.column_stack([blobs, np.zeros(len(blobs), dtype=int)])
+
     blobs = sort_by_intensity(blobs, image)
     blobs = remove_close_blobs(blobs, image, min_dist)
     blobs = eliminate_insignificant_blobs(image, blobs, sigma_threshold)
 
     return blobs
+
     
 # Save Coordinates to CSV file 
 def save_coordinates_to_csv(blobs, output_path="nanoparticles.csv"):
