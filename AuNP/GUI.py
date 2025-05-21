@@ -84,43 +84,51 @@ class NanoCount:
         if not file_path:
             return
 
-        try:
-            coords = np.loadtxt(file_path, delimiter=",")
-            if coords.ndim == 1:
-                coords = np.expand_dims(coords, axis=0)
-
-            # Ask for voxel size and shape
-            shape_input = simpledialog.askstring("Image Shape", "Enter image shape (e.g. 512,512,100):")
-            voxel_input = simpledialog.askstring("Voxel Size", "Enter voxel size in µm (e.g. 0.2,0.2,0.2):")
-
-            image_shape = tuple(map(int, shape_input.split(',')))
-            voxel_size = tuple(map(float, voxel_input.split(',')))
-
-            count, volume, density = calculate_density(coords, image_shape, voxel_size)
-            nnd = compute_nnd(coords)
-
-            mean_nnd = np.mean(nnd)
-            std_nnd = np.std(nnd)
-
-            self.result_text.delete(1.0, tk.END)
-            self.result_text.insert(tk.END, "📊 Nanoparticle CSV Metrics\n")
-            self.result_text.insert(tk.END, f"Total Particles: {count}\n")
-            self.result_text.insert(tk.END, f"Volume: {volume:.2f} µm³\n")
-            self.result_text.insert(tk.END, f"Density: {density:.4f} particles/µm³\n")
-            self.result_text.insert(tk.END, f"Mean NND: {mean_nnd:.2f} µm\n")
-            self.result_text.insert(tk.END, f"Std NND: {std_nnd:.2f} µm\n")
-
-            # Clear old plots
-            for widget in self.plot_frame.winfo_children():
-                widget.destroy()
-
-            # Add plots
-            plot_nnd_histogram(nnd, self.plot_frame)
-            html_path = plot_3d_scatter(coords)
-            webbrowser.open(os.path.abspath(html_path))
+       try:
+        # Load CSV and skip header
+        coords = np.loadtxt(file_path, delimiter=",", skiprows=1)
+        if coords.ndim == 1:
+            coords = np.expand_dims(coords, axis=0)
+    
+        # Ask for voxel size and image shape
+        shape_input = simpledialog.askstring("Image Shape", "Enter image shape (e.g. 512,512,100):")
+        voxel_input = simpledialog.askstring("Voxel Size", "Enter voxel size in µm (e.g. 0.2,0.2,0.2):")
+    
+        image_shape = tuple(map(int, shape_input.split(',')))
+        voxel_size = tuple(map(float, voxel_input.split(',')))
+    
+        # --- Metrics ---
+        from metrics import calculate_density, compute_nnd
+        count, volume, density = calculate_density(coords, image_shape, voxel_size)
+        nnd = compute_nnd(coords)
+    
+        mean_nnd = np.mean(nnd)
+        std_nnd = np.std(nnd)
+    
+        # --- Display Results ---
+        self.result_text.delete(1.0, tk.END)
+        self.result_text.insert(tk.END, "📊 Nanoparticle CSV Metrics\n")
+        self.result_text.insert(tk.END, f"Total Particles: {count}\n")
+        self.result_text.insert(tk.END, f"Volume: {volume:.2f} µm³\n")
+        self.result_text.insert(tk.END, f"Density: {density:.4f} particles/µm³\n")
+        self.result_text.insert(tk.END, f"Mean NND: {mean_nnd:.2f} µm\n")
+        self.result_text.insert(tk.END, f"Std NND: {std_nnd:.2f} µm\n")
+    
+        # --- Visualizations ---
+        for widget in self.plot_frame.winfo_children():
+            widget.destroy()
+    
+        # Embed histogram using metrics or visualization
+        from visualization import plot_nnd_histogram, plot_3d_scatter
+        plot_nnd_histogram(nnd_array=nnd, parent_widget=self.plot_frame)
+    
+        # Show interactive 3D scatter in browser
+        html_path = plot_3d_scatter(coords)
+        webbrowser.open(os.path.abspath(html_path))
 
         except Exception as e:
             messagebox.showerror("CSV Error", f"Failed to process CSV: {e}")
+
 
     def display_image(self, img):
         resized = cv2.resize(img, (400, 400))
