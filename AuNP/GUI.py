@@ -7,7 +7,7 @@ import cv2
 import os
 
 from metrics import calculate_density, compute_nnd
-from visualization import viz_np, apply_mask
+from visualization import load_localization_data, plot_localization_kde
 from segmentation import segment_nanoparticles
 from thresholding import apply_otsu_threshold
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -80,23 +80,27 @@ class NanoCount:
         file_path = filedialog.askopenfilename(filetypes=[("CSV Files", "*.csv")])
         if not file_path:
             return
-
+    
         try:
-            coords = np.loadtxt(file_path, delimiter=",", skiprows=1)
-            if coords.ndim == 1:
-                coords = np.expand_dims(coords, axis=0)
-
+            import pandas as pd
+            from visualization import load_localization_data, plot_localization_kde
+            from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+    
+            # Load CSV with pandas
+            df = pd.read_csv(file_path)
+            coords = df.to_numpy()
+    
             shape_input = simpledialog.askstring("Image Shape", "Enter image shape (e.g. 512,512,100):")
             voxel_input = simpledialog.askstring("Voxel Size", "Enter voxel size in µm (e.g. 0.2,0.2,0.2):")
-
+    
             image_shape = tuple(map(int, shape_input.split(',')))
             voxel_size = tuple(map(float, voxel_input.split(',')))
-
+    
             count, volume, density = calculate_density(coords, image_shape, voxel_size)
             nnd = compute_nnd(coords)
             mean_nnd = np.mean(nnd)
             std_nnd = np.std(nnd)
-
+    
             self.result_text.delete(1.0, tk.END)
             self.result_text.insert(tk.END, "📊 Nanoparticle CSV Metrics\n")
             self.result_text.insert(tk.END, f"Total Particles: {count}\n")
@@ -104,22 +108,17 @@ class NanoCount:
             self.result_text.insert(tk.END, f"Density: {density:.4f} particles/µm³\n")
             self.result_text.insert(tk.END, f"Mean NND: {mean_nnd:.2f} µm\n")
             self.result_text.insert(tk.END, f"Std NND: {std_nnd:.2f} µm\n")
-
+    
             for widget in self.plot_frame.winfo_children():
                 widget.destroy()
-
-            # --- Visualization ---
-            # Use a dummy 3D image volume for display (replace with actual image if available)
-            dummy_image = np.zeros((100, 100, 100))
-
-            fig1 = viz_np(dummy_image, coords)
-            fig2 = apply_mask(dummy_image, coords)
-
-            for fig in [fig1, fig2]:
-                canvas = FigureCanvasTkAgg(fig, master=self.plot_frame)
-                canvas.draw()
-                canvas.get_tk_widget().pack(pady=10)
-
+    
+            # 📊 Localization Plot from visualization.py
+            df_local = load_localization_data(file_path)
+            fig = plot_localization_kde(df_local, return_fig=True)
+            canvas = FigureCanvasTkAgg(fig, master=self.plot_frame)
+            canvas.draw()
+            canvas.get_tk_widget().pack(pady=10)
+    
         except Exception as e:
             messagebox.showerror("CSV Error", f"Failed to process CSV: {e}")
 
