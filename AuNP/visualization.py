@@ -53,7 +53,7 @@ def plot_localization_kde(df, output_path="cellular_localization_kde.png", retur
     kde = sns.kdeplot(
         data=df,
         x="Shortest Distance to Surfaces Surfaces=Surfaces 1",
-        y="Average Distance To 5 Nearest Neighbours",
+        y="Intensity Sum Ch=2 Img=2",
         fill=True,
         cmap="magma",
         levels=20,
