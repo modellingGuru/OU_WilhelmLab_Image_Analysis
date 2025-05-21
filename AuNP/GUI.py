@@ -9,7 +9,7 @@ import webbrowser
 from metrics import calculate_density, compute_nnd, plot_nnd_histogram, plot_3d_scatter
 from visualization import viz_np, apply_mask
 from segmentation import segment_nanoparticles
-from thresholding import apply_threshold
+from thresholding import apply_otsu_threshold
 from preprocessing import preprocess_image
 
 class NanoCount:
