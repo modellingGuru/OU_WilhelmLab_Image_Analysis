@@ -6,7 +6,7 @@ import cv2
 import os
 import webbrowser
 
-from metrics import calculate_density, compute_nnd
+from metrics import calculate_density, compute_nnd,  plot_nnd_histogram, plot_3d_scatter
 from visualization import plot_nnd_histogram, plot_3d_scatter
 from segmentation import segment_nanoparticles
 particles = segment_nanoparticles(self.image)
