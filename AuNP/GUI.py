@@ -4,13 +4,12 @@ from PIL import Image, ImageTk
 import numpy as np
 import cv2
 import os
-import webbrowser
 
 from metrics import calculate_density, compute_nnd
 from visualization import viz_np, apply_mask
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from segmentation import segment_nanoparticles
 from thresholding import apply_otsu_threshold
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 
 class NanoCount:
@@ -106,9 +105,17 @@ class NanoCount:
             for widget in self.plot_frame.winfo_children():
                 widget.destroy()
 
-            plot_nnd_histogram(nnd_array=nnd, parent_widget=self.plot_frame)
-            html_path = plot_3d_scatter(coords)
-            webbrowser.open(os.path.abspath(html_path))
+            # --- Visualization ---
+            # Use a dummy 3D image volume for display (replace with actual image if available)
+            dummy_image = np.zeros((100, 100, 100))
+
+            fig1 = viz_np(dummy_image, coords)
+            fig2 = apply_mask(dummy_image, coords)
+
+            for fig in [fig1, fig2]:
+                canvas = FigureCanvasTkAgg(fig, master=self.plot_frame)
+                canvas.draw()
+                canvas.get_tk_widget().pack(pady=10)
 
         except Exception as e:
             messagebox.showerror("CSV Error", f"Failed to process CSV: {e}")
@@ -149,3 +156,4 @@ class NanoCount:
 
         except Exception as e:
             messagebox.showerror("Segmentation Error", f"Failed to quantify particles: {e}")
+
