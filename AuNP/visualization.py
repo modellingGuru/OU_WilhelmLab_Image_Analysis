@@ -2,21 +2,104 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import cm
-from scipy.ndimage import gaussian_filter
-
+from scipy.ndimage import gaussian_filter    
+import os
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 # Load coordinates
-def load_coordinates(csv_path, reorder_axes=False):
+#def load_coordinates(csv_path, reorder_axes=False):
     """
     Loads blob coordinates from ("nanoparticles.csv") file.
     
     Redefine pathway to .csv file 
-    """
+    
     coords = np.loadtxt(csv_path, delimiter=",", skiprows=1)
     if reorder_axes:
         coords = coords[:, [2, 1, 0]]  
     return coords
-    
+    """
+
+def load_localization_data(csv_path=None):
+    """
+    Loads CSV containing distance-to-surface and neighbor-distance metrics.
+
+    Args:
+        csv_path (str): Full path to the CSV file.
+
+    Returns:
+        pd.DataFrame: Loaded DataFrame with expected columns.
+    """
+    if csv_path is None:
+        csv_path = os.path.expanduser("nanoparticle_coordinates.csv")
+
+    if not os.path.exists(csv_path):
+        raise FileNotFoundError(f"CSV file not found at: {csv_path}")
+
+    df = pd.read_csv(csv_path)
+    return df
+
+
+def plot_localization_kde(df, output_path="cellular_localization_kde.png", return_fig=False):
+    """
+    Generates and optionally saves a KDE scatter visualization for nanoparticle localization.
+
+    Args:
+        df (pd.DataFrame): DataFrame with required columns.
+        output_path (str): Path to save the output image.
+        return_fig (bool): If True, return the matplotlib figure object for embedding.
+
+    Returns:
+        matplotlib.figure.Figure (optional): Only returned if return_fig=True.
+    """
+    # Set up figure
+    fig, ax = plt.subplots(figsize=(8, 8), dpi=300)
+    ax.set_axisbelow(True)
+
+    # Define axis bounds
+    x_min, x_max = -50, 50
+    y_min, y_max = 10, 50
+
+    # KDE Plot
+    kde = sns.kdeplot(
+        data=df,
+        x="Shortest Distance to Surfaces Surfaces=Surfaces 1",
+        y="Average Distance To 5 Nearest Neighbours",
+        fill=True,
+        cmap="magma",
+        levels=20,
+        alpha=0.8,
+        cbar=True,
+        cbar_kws={'label': 'Density'}
+    )
+
+    # Labels and grid
+    plt.axvline(x=0, color='red', linestyle='--', linewidth=2, alpha=0.7)
+    plt.text(x_min * 0.7, y_max * 0.95, "Intracellular",
+             fontsize=14, ha='center', color='darkblue', backgroundcolor='white', alpha=0.7)
+    plt.text(x_max * 0.7, y_max * 0.95, "Extracellular",
+             fontsize=14, ha='center', color='darkblue', backgroundcolor='white', alpha=0.7)
+
+    plt.xlim(x_min, x_max)
+    plt.ylim(y_min, y_max)
+
+    plt.title('Nanoparticle Localization and Density', fontsize=16, fontweight='bold', pad=15)
+    plt.xlabel('Shortest Distance to Cell Surface', fontsize=14, labelpad=10)
+    plt.ylabel('Average Distance To 5 Nearest Neighbours', fontsize=14, labelpad=10)
+    plt.grid(True, alpha=0.3, linestyle='--')
+
+    # Customize colorbar
+    cbar = plt.gcf().axes[-1]
+    cbar.set_ylabel('Density', rotation=270, labelpad=20, fontsize=12)
+
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=300, bbox_inches='tight')
+
+    if return_fig:
+        return fig
+    else:
+        plt.close(fig)
 
 
 def viz_np(image, blobs, color_by_intensity=True):
