@@ -41,19 +41,28 @@ def plot_localization_kde(df, output_path="cellular_localization_kde.png", retur
     Returns:
         matplotlib.figure.Figure (optional): Only returned if return_fig=True.
     """
+    x_col = "Shortest Distance to Surfaces Surfaces=Surfaces 1"
+    y_col = "Intensity Sum Ch=2 Img=2"
+
+    # Calculate dynamic axis limits with padding
+    x_min_data, x_max_data = df[x_col].min(), df[x_col].max()
+    y_min_data, y_max_data = df[y_col].min(), df[y_col].max()
+
+    x_pad = (x_max_data - x_min_data) * 0.1
+    y_pad = (y_max_data - y_min_data) * 0.1
+
+    x_min, x_max = x_min_data - x_pad, x_max_data + x_pad
+    y_min, y_max = y_min_data - y_pad, y_max_data + y_pad
+
     # Set up figure
     fig, ax = plt.subplots(figsize=(8, 8), dpi=300)
     ax.set_axisbelow(True)
 
-    # Define axis bounds
-    x_min, x_max = -50, 50
-    y_min, y_max = 10, 50
-
     # KDE Plot
     kde = sns.kdeplot(
         data=df,
-        x="Shortest Distance to Surfaces Surfaces=Surfaces 1",
-        y="Intensity Sum Ch=2 Img=2",
+        x=x_col,
+        y=y_col,
         fill=True,
         cmap="magma",
         levels=20,
@@ -64,11 +73,12 @@ def plot_localization_kde(df, output_path="cellular_localization_kde.png", retur
 
     # Labels and grid
     plt.axvline(x=0, color='red', linestyle='--', linewidth=2, alpha=0.7)
-    plt.text(x_min * 0.7, y_max * 0.95, "Intracellular",
+    plt.text(x_min + (x_max - x_min) * 0.15, y_max * 0.98, "Intracellular",
              fontsize=14, ha='center', color='darkblue', backgroundcolor='white', alpha=0.7)
-    plt.text(x_max * 0.7, y_max * 0.95, "Extracellular",
+    plt.text(x_max - (x_max - x_min) * 0.15, y_max * 0.98, "Extracellular",
              fontsize=14, ha='center', color='darkblue', backgroundcolor='white', alpha=0.7)
 
+    # Apply dynamic limits
     plt.xlim(x_min, x_max)
     plt.ylim(y_min, y_max)
 
