@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import filedialog, messagebox, simpledialog
 from PIL import Image, ImageTk
 import numpy as np
+import pandas as pd
 import cv2
 import os
 
@@ -69,6 +70,8 @@ class NanoCount:
 
     def upload_image(self):
         file_path = filedialog.askopenfilename(filetypes=[("Image Files", "*.png *.jpg *.jpeg *.bmp")])
+        df = pd.read_csv(file_path)
+        coords = df.to_numpy()
         if file_path:
             self.image = cv2.imread(file_path, cv2.IMREAD_GRAYSCALE)
             self.display_image(self.image)
