@@ -11,10 +11,10 @@ from visualization import plot_nnd_histogram, plot_3d_scatter
 from segmentation import find_particles
 
 
-class NanoQuantGUI:
+class NanoCount:
     def __init__(self, root):
         self.root = root
-        self.root.title("🌟 NanoQuant - Nanoparticle Quantification Tool 🌟")
+        self.root.title("🌟 NanoCount - Nanoparticle Quantification Tool 🌟")
         self.root.geometry("1000x800")
         self.root.configure(bg="#f0f4ff")
 
@@ -22,7 +22,7 @@ class NanoQuantGUI:
         self.create_widgets()
 
     def create_widgets(self):
-        title_label = tk.Label(self.root, text="NanoQuant - Nanoparticle Quantification Tool",
+        title_label = tk.Label(self.root, text="NanoCount - Nanoparticle Quantification Tool",
                                font=("Helvetica", 18, "bold"), bg="#4a90e2", fg="white", pady=10)
         title_label.pack(fill="x")
 
