@@ -56,8 +56,8 @@ def viz_np(image, blobs, color_by_intensity=True):
         cbar = fig.colorbar(cm.ScalarMappable(norm=norm, cmap=cm.viridis), ax=ax)
         cbar.set_label('Intensity')
 
-    # Show plot
-    plt.show()
+    # return plot
+    return fig
 
 
 def generate_mask(image, blobs, mask_size=3):
@@ -144,7 +144,7 @@ def apply_mask(image, blobs, mask_size=3, colormap='viridis'):
     cbar = fig.colorbar(sm, ax=ax)
     cbar.set_label('Intensity')
 
-    plt.show()
+    return fig
 
 # Save visual 
 def save_data(image, blobs, image_path="synthetic_image.npy", csv_path="nanoparticles.csv"):
