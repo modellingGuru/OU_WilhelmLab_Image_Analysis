@@ -81,36 +81,7 @@ class NanoCount:
         if file_path:
             self.image = cv2.imread(file_path, cv2.IMREAD_GRAYSCALE)
             self.display_image(self.image)
-    def batch_process(self):
-        folder = filedialog.askdirectory(title="Select Folder of Images")
-        if not folder:
-            return
-    
-        out_folder = filedialog.askdirectory(title="Select Output Folder")
-        if not out_folder:
-            return
-    
-        log_path = os.path.join(out_folder, "batch_summary.txt")
-        with open(log_path, "w") as log:
-            log.write("File,Particles Detected\n")
-    
-            for file in os.listdir(folder):
-                if file.lower().endswith((".png", ".jpg", ".jpeg", ".bmp")):
-                    try:
-                        path = os.path.join(folder, file)
-                        img = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
-                        particles = segment_nanoparticles(img)
-                        coords = particles
-                        if coords.shape[1] == 2:
-                            coords = np.column_stack([coords, np.zeros(len(coords))])
-                        out_csv = os.path.join(out_folder, file.replace(".", "_") + "_particles.csv")
-                        np.savetxt(out_csv, coords, delimiter=",", fmt="%.2f", header="x,y,z", comments='')
-                        log.write(f"{file},{len(particles)}\n")
-                    except Exception as e:
-                        log.write(f"{file},ERROR: {e}\n")
-    
-        messagebox.showinfo("Batch Complete", f"Batch processing complete.\nSummary saved to:\n{log_path}")
-
+   
     def upload_csv(self):
         file_path = filedialog.askopenfilename(filetypes=[("CSV Files", "*.csv")])
         if not file_path:
