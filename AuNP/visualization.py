@@ -8,18 +8,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-# Load coordinates
-#def load_coordinates(csv_path, reorder_axes=False):
-    """
-    Loads blob coordinates from ("nanoparticles.csv") file.
-    
-    Redefine pathway to .csv file 
-    
-    coords = np.loadtxt(csv_path, delimiter=",", skiprows=1)
-    if reorder_axes:
-        coords = coords[:, [2, 1, 0]]  
-    return coords
-    """
 
 def load_localization_data(csv_path=None):
     """
