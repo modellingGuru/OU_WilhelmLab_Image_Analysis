@@ -36,8 +36,6 @@ class NanoCount:
         tk.Button(button_frame, text="📊 Upload CSV", command=self.upload_csv,
                   bg="#ffa726", fg="white", font=("Helvetica", 10, "bold")).grid(row=0, column=1, padx=10)
         
-        tk.Button(button_frame, text="📁 Batch Process", command=self.batch_process,
-          bg="#26c6da", fg="white", font=("Helvetica", 10, "bold")).grid(row=0, column=4, padx=10)
 
         tk.Button(button_frame, text="🔍 Quantify Particles", command=self.quantify_particles,
                   bg="#42a5f5", fg="white", font=("Helvetica", 10, "bold")).grid(row=0, column=2, padx=10)
