@@ -7,7 +7,8 @@ import os
 import webbrowser
 
 from metrics import calculate_density, compute_nnd
-from visualization import plot_nnd_histogram, plot_3d_scatter
+from visualization import viz_np, apply_mask
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from segmentation import segment_nanoparticles
 from thresholding import apply_otsu_threshold
 
